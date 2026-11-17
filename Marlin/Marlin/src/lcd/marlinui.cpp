@@ -38,6 +38,10 @@
 
 // All displays share the MarlinUI class
 #include "marlinui.h"
+
+#if ENABLED(PET_PULLER)
+  #include "../feature/pet_puller.h"
+#endif
 MarlinUI ui;
 
 #if HAS_DISPLAY
@@ -604,6 +608,11 @@ void MarlinUI::init() {
   #endif
 
   void MarlinUI::status_screen() {
+
+    #if ENABLED(PET_PULLER)
+      pet_puller_status_screen();
+      return;
+    #endif
 
     TERN_(HAS_MARLINUI_MENU, ENCODER_RATE_MULTIPLY(false));
 

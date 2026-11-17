@@ -4268,3 +4268,6 @@
 
 // Report uncleaned reset reason from register r2 instead of MCUSR. Supported by Optiboot on AVR.
 //#define OPTIBOOT_RESET_REASON
+
+// PET Puller overrides that must be applied after Configuration_adv.h.
+#include "pet_puller_config.h"

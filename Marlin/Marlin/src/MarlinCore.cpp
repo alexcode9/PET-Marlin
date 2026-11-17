@@ -56,6 +56,9 @@
 #include "gcode/queue.h"
 
 #include "feature/pause.h"
+#if ENABLED(PET_PULLER)
+  #include "feature/pet_puller.h"
+#endif
 #include "sd/cardreader.h"
 
 #include "lcd/marlinui.h"
@@ -891,6 +894,9 @@ void idle(const bool no_stepper_sleep/*=false*/) {
  * After this the machine will need to be reset.
  */
 void kill(FSTR_P const lcd_error/*=nullptr*/, FSTR_P const lcd_component/*=nullptr*/, const bool steppers_off/*=false*/) {
+  #if ENABLED(PET_PULLER)
+    PetPuller::on_kill();
+  #endif
   thermalManager.disable_all_heaters();
 
   TERN_(HAS_CUTTER, cutter.kill()); // Full cutter shutdown including ISR control
@@ -963,6 +969,9 @@ void minkill(const bool steppers_off/*=false*/) {
  * After a stop the machine may be resumed with M999
  */
 void stop() {
+  #if ENABLED(PET_PULLER)
+    PetPuller::on_stop();
+  #endif
   thermalManager.disable_all_heaters(); // 'unpause' taken care of in here
 
   print_job_timer.stop();
@@ -1649,6 +1658,10 @@ void setup() {
 
   marlin_state = MF_RUNNING;
 
+  #if ENABLED(PET_PULLER)
+    SETUP_RUN(PetPuller::init());
+  #endif
+
   SETUP_LOG("setup() completed.");
 
   TERN_(MARLIN_TEST_BUILD, runStartupTests());
@@ -1683,6 +1696,10 @@ void loop() {
     #endif
 
     endstops.event_handler();
+
+    #if ENABLED(PET_PULLER)
+      PetPuller::tick();
+    #endif
 
     TERN_(HAS_TFT_LVGL_UI, printer_state_polling());
 
